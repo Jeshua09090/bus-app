@@ -3,30 +3,35 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 import { ROUTE_DEFINITIONS } from '@/lib/routes';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React from 'react';
-import { Dimensions, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Dimensions, ScrollView, StyleSheet, TouchableOpacity, View, TextInput, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Location from 'expo-location';
+
+const MAPBOX_TOKEN = process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN;
+const GOOGLE_PLACES_KEY = process.env.EXPO_PUBLIC_GOOGLE_PLACES_KEY;
+const DEFAULT_LOCATION = '9.8636,-83.9194'; // Cartago, Costa Rica (lat,lng for Google)
 
 const { width } = Dimensions.get('window');
 
 const RECENT_ROUTES = [
-  { 
-    id: 'cartago_taras', 
-    destination: 'Parada principal, Taras', 
-    time: '26 min', 
-    arrival: '12:47', 
-    leavesIn: '3 min', 
-    price: '₡350', 
-    busLine: '300' 
+  {
+    id: 'cartago_taras',
+    destination: 'Parada principal, Taras',
+    time: '26 min',
+    arrival: '12:47',
+    leavesIn: '3 min',
+    price: '₡350',
+    busLine: '300'
   },
-  { 
-    id: 'cartago_paraiso', 
-    destination: 'Basílica de Los Ángeles', 
-    time: '15 min', 
-    arrival: '13:05', 
-    leavesIn: '8 min', 
-    price: '₡350', 
-    busLine: '304' 
+  {
+    id: 'cartago_paraiso',
+    destination: 'Basílica de Los Ángeles',
+    time: '15 min',
+    arrival: '13:05',
+    leavesIn: '8 min',
+    price: '₡350',
+    busLine: '304'
   },
   {
     id: 'lumaca_sanjose',
@@ -47,6 +52,78 @@ const FAVORITES = [
 
 export default function TravelScreen() {
   const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState<{ place_id: string; name: string; address: string; coordinates?: [number, number] } | null>(null);
+  const [userLocation, setUserLocation] = useState(DEFAULT_LOCATION);
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === 'granted') {
+        const loc = await Location.getCurrentPositionAsync({});
+        setUserLocation(`${loc.coords.latitude},${loc.coords.longitude}`);
+      }
+    })();
+  }, []);
+
+  const searchPlaces = async (text: string) => {
+    setSearchQuery(text);
+    if (text.length >= 2) {
+      setIsSearching(true);
+      try {
+        const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(text)}&key=${GOOGLE_PLACES_KEY}&components=country:cr&language=es&radius=50000&location=${userLocation}&types=establishment`;
+        console.log('Google Places URL:', url);
+        const response = await fetch(url);
+        const json = await response.json();
+
+        console.log('Search:', text, '| Status:', json.status, '| Results:', json.predictions?.length);
+
+        if (json.predictions) {
+          setSearchResults(
+            json.predictions.map((p: any) => ({
+              place_id: p.place_id,
+              main_text: p.structured_formatting?.main_text || p.description,
+              secondary_text: p.structured_formatting?.secondary_text || '',
+              description: p.description,
+            }))
+          );
+        } else {
+          setSearchResults([]);
+        }
+      } catch (err) {
+        console.error('Places search error:', err);
+        setSearchResults([]);
+      }
+      setIsSearching(false);
+    } else {
+      setSearchResults([]);
+    }
+  };
+
+  const selectPlace = async (result: any) => {
+    setSearchQuery(result.main_text);
+    setSearchResults([]);
+    Keyboard.dismiss();
+    try {
+      const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${result.place_id}&fields=geometry&key=${GOOGLE_PLACES_KEY}`;
+      const response = await fetch(url);
+      const json = await response.json();
+      if (json.result?.geometry?.location) {
+        const { lat, lng } = json.result.geometry.location;
+        setSelectedPlace({
+          place_id: result.place_id,
+          name: result.main_text,
+          address: result.secondary_text,
+          coordinates: [lng, lat],
+        });
+        console.log('Selected place:', result.main_text, '| Coords:', lat, lng);
+      }
+    } catch (err) {
+      console.error('Place details error:', err);
+    }
+  };
 
   const openRouteOnMap = (routeId: string) => {
     const route = ROUTE_DEFINITIONS.find((item) => item.id === routeId);
@@ -58,17 +135,17 @@ export default function TravelScreen() {
       },
     });
   };
-  
+
   // Adapted colors for light/dark mode based on the reference design
   const backgroundColor = useThemeColor({ light: '#ffffff', dark: '#0b0f19' }, 'background');
   const textColor = useThemeColor({ light: '#0f172a', dark: '#f8fafc' }, 'text');
   const textMuted = useThemeColor({ light: '#64748b', dark: '#94a3b8' }, 'text');
-  
+
   // Borders and cards
   const borderColor = useThemeColor({ light: '#e2e8f0', dark: '#1e293b' }, 'background');
   const cardColor = useThemeColor({ light: '#ffffff', dark: '#151e2f' }, 'background');
   const inputBgColor = useThemeColor({ light: '#ffffff', dark: '#0b0f19' }, 'background');
-  
+
   // Accents matching the image
   const primaryAccent = '#6366f1'; // Purple/Blue accent from the image
   const lightPurpleBg = useThemeColor({ light: '#f3f0ff', dark: 'rgba(99, 102, 241, 0.15)' }, 'background');
@@ -78,7 +155,7 @@ export default function TravelScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        
+
         {/* Top Header */}
         <View style={styles.topHeader}>
           <View style={styles.logoContainer}>
@@ -100,18 +177,51 @@ export default function TravelScreen() {
         </View>
 
         {/* Search Bar */}
-        <View style={[styles.searchContainer, { borderColor, backgroundColor: inputBgColor }]}>
-          <ThemedText style={[styles.searchInputText, { color: textMuted }]}>
-            Buscar destino...
-          </ThemedText>
-          <TouchableOpacity 
+        <View style={[
+          styles.searchContainer, 
+          { borderColor, backgroundColor: inputBgColor },
+          searchResults.length > 0 && { borderBottomLeftRadius: 0, borderBottomRightRadius: 0, marginBottom: 0 }
+        ]}>
+          <TextInput
+            style={[styles.searchInputText, { color: textColor }]}
+            placeholder="Buscar destino..."
+            placeholderTextColor={textMuted}
+            value={searchQuery}
+            onChangeText={searchPlaces}
+          />
+          <TouchableOpacity
             style={[styles.searchButton, { backgroundColor: primaryAccent }]}
             activeOpacity={0.8}
-            onPress={() => openRouteOnMap('cartago_taras')}
+            onPress={() => Keyboard.dismiss()}
           >
-            <Ionicons name="search" size={20} color="#ffffff" />
+            <Ionicons name={isSearching ? 'hourglass-outline' : 'search'} size={20} color="#ffffff" />
           </TouchableOpacity>
         </View>
+
+        {/* Search Results Dropdown */}
+        {searchResults.length > 0 && (
+          <View style={[styles.searchResultsDropdown, { borderColor, backgroundColor: cardColor }]}>
+            {searchResults.map((result) => (
+              <TouchableOpacity
+                key={result.place_id}
+                style={[styles.searchResultItem, { borderBottomColor: borderColor }]}
+                onPress={() => selectPlace(result)}
+              >
+                <Ionicons name="location-outline" size={20} color={textMuted} style={styles.searchResultIcon} />
+                <View style={styles.searchResultTextContainer}>
+                  <ThemedText style={[styles.searchResultTitle, { color: textColor }]} numberOfLines={1}>
+                    {result.main_text}
+                  </ThemedText>
+                  {result.secondary_text ? (
+                    <ThemedText style={[styles.searchResultSubtitle, { color: textMuted }]} numberOfLines={1}>
+                      {result.secondary_text}
+                    </ThemedText>
+                  ) : null}
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
         {/* Latest Routes (Horizontal) */}
         <View style={styles.sectionHeader}>
@@ -119,16 +229,16 @@ export default function TravelScreen() {
           <ThemedText style={[styles.sectionTitle, { color: textColor }]}>Rutas Recientes</ThemedText>
         </View>
 
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false} 
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.routesScrollContainer}
           snapToInterval={width * 0.85 + 16}
           decelerationRate="fast"
         >
           {RECENT_ROUTES.map((route) => (
-            <TouchableOpacity 
-              key={route.id} 
+            <TouchableOpacity
+              key={route.id}
               style={[styles.recentRouteCard, { borderColor, backgroundColor: cardColor }]}
               activeOpacity={0.9}
               onPress={() => openRouteOnMap(route.id)}
@@ -136,21 +246,21 @@ export default function TravelScreen() {
               <ThemedText style={[styles.routeDestination, { color: textColor }]} numberOfLines={1}>
                 {route.destination}
               </ThemedText>
-              
+
               <ThemedText style={[styles.routeTimeInfo, { color: textMuted }]}>
-                <ThemedText style={{fontWeight: '600', color: textColor}}>{route.time}</ThemedText> • Llega a las {route.arrival}
+                <ThemedText style={{ fontWeight: '600', color: textColor }}>{route.time}</ThemedText> • Llega a las {route.arrival}
               </ThemedText>
 
               <View style={styles.badgesRow}>
                 <View style={[styles.badge, { backgroundColor: lightPurpleBg }]}>
-                  <Ionicons name="radio-outline" size={14} color={primaryAccent} style={{marginRight: 4}} />
+                  <Ionicons name="radio-outline" size={14} color={primaryAccent} style={{ marginRight: 4 }} />
                   <ThemedText style={[styles.badgeText, { color: primaryAccent }]}>
                     Sale en {route.leavesIn}
                   </ThemedText>
                 </View>
 
                 <View style={[styles.badge, { backgroundColor: lightGreenBg }]}>
-                  <Ionicons name="cash-outline" size={14} color={greenText} style={{marginRight: 4}} />
+                  <Ionicons name="cash-outline" size={14} color={greenText} style={{ marginRight: 4 }} />
                   <ThemedText style={[styles.badgeText, { color: greenText }]}>
                     {route.price}
                   </ThemedText>
@@ -159,14 +269,14 @@ export default function TravelScreen() {
 
               <View style={[styles.transportSequence, { borderTopColor: borderColor }]}>
                 <View style={[styles.sequenceBadge, { backgroundColor: lightPurpleBg }]}>
-                  <Ionicons name="bus" size={14} color={primaryAccent} style={{marginRight: 6}} />
+                  <Ionicons name="bus" size={14} color={primaryAccent} style={{ marginRight: 6 }} />
                   <ThemedText style={[styles.sequenceText, { color: primaryAccent }]}>
                     {route.busLine}
                   </ThemedText>
                 </View>
-                <Ionicons name="chevron-forward" size={16} color={textMuted} style={{marginHorizontal: 8}} />
+                <Ionicons name="chevron-forward" size={16} color={textMuted} style={{ marginHorizontal: 8 }} />
                 <View style={[styles.sequenceBadge, { backgroundColor: 'transparent' }]}>
-                  <Ionicons name="walk" size={16} color={primaryAccent} style={{marginRight: 6}} />
+                  <Ionicons name="walk" size={16} color={primaryAccent} style={{ marginRight: 6 }} />
                   <ThemedText style={[styles.sequenceText, { color: primaryAccent }]}>
                     Caminar
                   </ThemedText>
@@ -192,22 +302,22 @@ export default function TravelScreen() {
 
         <View style={styles.favoritesList}>
           {FAVORITES.map((fav) => (
-            <TouchableOpacity 
-              key={fav.id} 
+            <TouchableOpacity
+              key={fav.id}
               style={[styles.favoriteCard, { borderColor, backgroundColor: cardColor }]}
               activeOpacity={0.7}
             >
               <View style={styles.favIconContainer}>
                 <Ionicons name={fav.icon} size={24} color={textMuted} />
               </View>
-              
+
               <View style={styles.favInfo}>
                 <ThemedText style={[styles.favTitle, { color: textColor }]}>{fav.title}</ThemedText>
                 <ThemedText style={[styles.favSubtitle, { color: textMuted }]} numberOfLines={1}>
                   {fav.subtitle}
                 </ThemedText>
               </View>
-              
+
               <Ionicons name="chevron-forward" size={20} color={textMuted} />
             </TouchableOpacity>
           ))}
@@ -417,6 +527,36 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   favSubtitle: {
+    fontSize: 13,
+  },
+  searchResultsDropdown: {
+    marginHorizontal: 24,
+    borderWidth: 1,
+    borderTopWidth: 0,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    marginBottom: 32,
+    overflow: 'hidden',
+  },
+  searchResultItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+  },
+  searchResultIcon: {
+    marginRight: 12,
+  },
+  searchResultTextContainer: {
+    flex: 1,
+  },
+  searchResultTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  searchResultSubtitle: {
     fontSize: 13,
   },
 });

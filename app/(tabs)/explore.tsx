@@ -2,8 +2,8 @@ import { ThemedText } from '@/components/themed-text';
 import { useAuth } from '@/context/auth-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import {
-    DETAILED_ROUTE,
-    resolveRoute
+  DETAILED_ROUTE,
+  resolveRoute
 } from '@/lib/routes';
 import { supabase } from '@/lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
@@ -65,7 +65,7 @@ export default function PassengerModeScreen() {
   const [isSimulating, setIsSimulating] = useState(false);
   const [userCoordinate, setUserCoordinate] = useState<[number, number] | null>(null);
   const insets = useSafeAreaInsets();
-  
+
   const router = useRouter();
   const { routeId: routeIdParam, routeName: routeNameParam } = useLocalSearchParams<{
     routeId?: string;
@@ -76,7 +76,7 @@ export default function PassengerModeScreen() {
     () => resolveRoute(routeIdParam, routeNameParam),
     [routeIdParam, routeNameParam]
   );
-  
+
   const routeGeoJSON = useMemo(() => {
     return {
       type: 'Feature',
@@ -93,11 +93,11 @@ export default function PassengerModeScreen() {
   const cardBg = useThemeColor({ light: '#f1f5f9', dark: '#334155' }, 'background');
   const textColor = useThemeColor({ light: '#0f172a', dark: '#f8fafc' }, 'text');
   const textMuted = useThemeColor({ light: '#64748b', dark: '#94a3b8' }, 'text');
-  
+
   const channelRef = useRef<RealtimeChannel | null>(null);
   const simulationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const currentStepRef = useRef(0);
-  
+
   // Bottom Sheet
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ['15%', '40%', '80%'], []);
@@ -111,7 +111,7 @@ export default function PassengerModeScreen() {
     })();
 
     const routeId = 'ruta_1';
-    
+
     const channel = supabase.channel(`route_tracking:${routeId}`, {
       config: { broadcast: { self: true } }
     })
@@ -120,7 +120,7 @@ export default function PassengerModeScreen() {
         { event: 'location_update' },
         (payload) => {
           const { driver_id, lat, lng, status, timestamp, route, placa } = payload.payload;
-          
+
           setBuses((prevBuses) => ({
             ...prevBuses,
             [driver_id]: {
@@ -136,7 +136,7 @@ export default function PassengerModeScreen() {
         }
       )
       .subscribe();
-      
+
     channelRef.current = channel;
 
     const cleanupInterval = setInterval(() => {
@@ -144,7 +144,7 @@ export default function PassengerModeScreen() {
         const now = Date.now();
         const next = { ...prev };
         let changed = false;
-        
+
         for (const [id, bus] of Object.entries(next)) {
           if (now - bus.lastUpdate > 30000) {
             delete next[id];
@@ -174,15 +174,15 @@ export default function PassengerModeScreen() {
     } else {
       setIsSimulating(true);
       currentStepRef.current = 0;
-      
+
       simulationIntervalRef.current = setInterval(() => {
         if (currentStepRef.current >= DETAILED_ROUTE.length) {
           currentStepRef.current = 0;
         }
-  
+
         const point = DETAILED_ROUTE[currentStepRef.current];
         const [lng, lat] = point;
-  
+
         if (channelRef.current) {
           channelRef.current.send({
             type: 'broadcast',
@@ -215,8 +215,8 @@ export default function PassengerModeScreen() {
   }, []);
 
   const activeBusesList = Object.values(buses).sort((a, b) => b.lastUpdate - a.lastUpdate);
-  
-  const centerCoordinate = activeBusesList.length > 0 
+
+  const centerCoordinate = activeBusesList.length > 0
     ? [activeBusesList[0].longitude, activeBusesList[0].latitude]
     : DEFAULT_COORDINATES;
 
@@ -225,10 +225,10 @@ export default function PassengerModeScreen() {
       {/* Full-Screen Map */}
       {MAPBOX_PUBLIC_TOKEN ? (
         <Mapbox.MapView style={StyleSheet.absoluteFillObject} styleURL={Mapbox.StyleURL.Dark} compassEnabled={false} logoEnabled={false} scaleBarEnabled={false}>
-          <Mapbox.Camera 
-            zoomLevel={13.5} 
+          <Mapbox.Camera
+            zoomLevel={13.5}
             centerCoordinate={centerCoordinate}
-            animationDuration={2000} 
+            animationDuration={2000}
             pitch={45} // Angled view for premium feel
           />
           <Mapbox.UserLocation visible showsUserHeadingIndicator />
@@ -275,13 +275,13 @@ export default function PassengerModeScreen() {
           <TouchableOpacity style={styles.menuButton} onPress={handleLogout}>
             <Ionicons name="menu" size={24} color="#fff" />
           </TouchableOpacity>
-          
+
           <View style={styles.searchBarFake}>
             <ThemedText style={styles.searchText}>¿Hacia dónde vas?</ThemedText>
           </View>
 
-          <TouchableOpacity 
-            style={[styles.simButton, { backgroundColor: isSimulating ? 'rgba(239, 68, 68, 0.8)' : 'rgba(59, 130, 246, 0.8)' }]} 
+          <TouchableOpacity
+            style={[styles.simButton, { backgroundColor: isSimulating ? 'rgba(239, 68, 68, 0.8)' : 'rgba(59, 130, 246, 0.8)' }]}
             onPress={toggleSimulation}
           >
             <Ionicons name={isSimulating ? "stop" : "play"} size={20} color="#fff" />
@@ -291,7 +291,7 @@ export default function PassengerModeScreen() {
 
       {/* Crosshair target for center map feeling */}
       <View style={styles.mapCenterDot} pointerEvents="none">
-         <View style={styles.mapCenterDotInner} />
+        <View style={styles.mapCenterDotInner} />
       </View>
 
       {/* Bottom Sheet for Bus List */}
@@ -315,7 +315,7 @@ export default function PassengerModeScreen() {
         <BottomSheetScrollView contentContainerStyle={styles.scrollContent}>
           {activeBusesList.length === 0 ? (
             <View style={styles.emptyState}>
-              <Ionicons name="bus-outline" size={48} color={textMuted} style={{opacity: 0.5}} />
+              <Ionicons name="bus-outline" size={48} color={textMuted} style={{ opacity: 0.5 }} />
               <ThemedText style={[styles.emptyText, { color: textMuted }]}>
                 Buscando buses en tu zona...
               </ThemedText>
@@ -324,15 +324,15 @@ export default function PassengerModeScreen() {
             activeBusesList.map((bus) => {
               const secondsAgo = Math.floor((Date.now() - bus.lastUpdate) / 1000);
               return (
-                <TouchableOpacity 
-                  key={bus.id} 
+                <TouchableOpacity
+                  key={bus.id}
                   style={[styles.busCard, { backgroundColor: cardBg }]}
                   activeOpacity={0.7}
                 >
                   <View style={styles.busIconContainer}>
                     <Ionicons name="bus" size={24} color="#10b981" />
                   </View>
-                  
+
                   <View style={styles.busInfo}>
                     <ThemedText style={[styles.busRouteText, { color: textColor }]} numberOfLines={1}>
                       {bus.route}
@@ -341,7 +341,7 @@ export default function PassengerModeScreen() {
                       Unidad: {bus.placa || 'Desconocida'}
                     </ThemedText>
                   </View>
-                  
+
                   <View style={styles.busMeta}>
                     <ThemedText style={[styles.timeText, { color: secondsAgo > 15 ? '#f59e0b' : '#10b981' }]}>
                       {secondsAgo < 5 ? 'Ahora' : `Hace ${secondsAgo}s`}

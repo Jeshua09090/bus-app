@@ -1,8 +1,8 @@
-import { StyleSheet, View, SafeAreaView, TouchableOpacity } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
-import { Ionicons } from '@expo/vector-icons';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import { useAuth } from '@/context/auth-context';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export default function ProfileScreen() {
   const backgroundColor = useThemeColor({ light: '#f8fafc', dark: '#0f172a' }, 'background');
@@ -38,7 +38,7 @@ export default function ProfileScreen() {
             <ThemedText style={[styles.menuText, { color: textColor }]}>Historial de Viajes</ThemedText>
             <Ionicons name="chevron-forward" size={20} color={textMuted} />
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={[styles.menuItem, { backgroundColor: cardColor }]} activeOpacity={0.7}>
             <Ionicons name="settings-outline" size={24} color={textColor} />
             <ThemedText style={[styles.menuText, { color: textColor }]}>Configuración</ThemedText>
@@ -46,8 +46,8 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity 
-          style={[styles.logoutButton, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]} 
+        <TouchableOpacity
+          style={[styles.logoutButton, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}
           onPress={handleLogout}
           activeOpacity={0.7}
         >
