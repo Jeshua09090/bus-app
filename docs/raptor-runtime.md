@@ -1,44 +1,45 @@
-# RAPTOR Runtime
+# Runtime RAPTOR
 
-Buses CR is moving trip planning away from slow database RPC calls and into an
-on-device transit runtime.
+Buses CR está moviendo la planificación de viajes fuera de RPCs lentos en base
+de datos y hacia un runtime de transporte que pueda correr en el dispositivo.
 
-The current public branch includes the first reviewable version of that work:
+La versión pública actual incluye:
 
-- a bundled Cartago-scoped transit snapshot in `assets/snapshots/`
-- snapshot generation and verification tooling in `scripts/snapshot/`
-- an in-memory RAPTOR planner in `lib/raptor/`
-- planner-lab screens and scripts for inspecting route choices
-- golden-case and ranking regression tests for local Costa Rican corridors
+- un snapshot de tránsito, con alcance inicial en corredores de validación
+- generación y verificación de snapshots en `scripts/snapshot/`
+- un planner RAPTOR en memoria en `lib/raptor/`
+- pantallas y scripts de planner-lab para inspeccionar decisiones de ruta
+- tests de regresión para casos locales de Costa Rica
 
-## Runtime Shape
+## Forma Del Runtime
 
-The runtime is intentionally feature-flagged. Production can keep using the
-legacy planner while the RAPTOR path is validated against real trips.
+El runtime sigue detrás de feature flag. Producción puede seguir usando el
+planner legacy mientras RAPTOR se valida con viajes reales.
 
-At a high level:
+Flujo general:
 
-1. `scripts/snapshot/` reads transit runtime tables.
-2. The generator packages a Minotor-compatible snapshot.
-3. `scripts/bundle-snapshot.mjs` copies the gzipped snapshot into app assets.
-4. `lib/raptor/snapshot-cache.ts` loads and caches the snapshot on device.
-5. `lib/raptor/find-journeys.ts` runs the transit search.
-6. `lib/raptor/result-mapper.ts` maps runtime output back into existing app
-   journey shapes.
+1. `scripts/snapshot/` lee las tablas de runtime de transporte.
+2. El generador empaqueta un snapshot compatible con Minotor.
+3. `scripts/bundle-snapshot.mjs` copia el snapshot comprimido a assets de la app.
+4. `lib/raptor/snapshot-cache.ts` carga y cachea el snapshot en el dispositivo.
+5. `lib/raptor/find-journeys.ts` ejecuta la búsqueda de viajes.
+6. `lib/raptor/result-mapper.ts` mapea el resultado al shape que ya entiende la
+   UI.
 
-The app still reuses `PlannedJourney` and `JourneyLeg` from the legacy planner so
-the passenger UI does not need a parallel data model.
+La app reutiliza `PlannedJourney` y `JourneyLeg` del planner legacy para no
+mantener dos modelos paralelos en la UI de pasajeros.
 
-## Important Constraints
+## Restricciones Importantes
 
-- `minotor` is pinned to exact `11.2.2`.
-- App code imports from `minotor`, not `minotor/parser`.
-- The feature flag defaults off unless explicitly enabled.
-- The bundled snapshot is local to the app; there is no Supabase Storage
-  download flow yet.
-- Ranking rules should be backed by validation cases, not intuition alone.
+- `minotor` está fijado exactamente en `11.2.2`.
+- El código de app importa desde `minotor`, no desde `minotor/parser`.
+- El feature flag sigue apagado por defecto.
+- El snapshot está empaquetado como asset local; todavía no hay descarga desde
+  Supabase Storage.
+- Las reglas de ranking deben respaldarse con casos de validación, no con
+  intuición.
 
-## Validation Commands
+## Comandos De Validación
 
 ```bash
 npm run raptor:test
@@ -47,12 +48,13 @@ npm run raptor:perf-p95
 npm run snapshot:test
 ```
 
-Some scripts need environment variables and local Supabase data. The unit tests
-and snapshot package tests are the easiest entry point for reviewers.
+Algunos scripts necesitan variables de entorno y datos locales de Supabase. Los
+tests unitarios y los tests del paquete de snapshot son la entrada más simple
+para reviewers desde un clon limpio.
 
-## Why This Is Public
+## Por Qué Es Público
 
-This branch is meant to make the algorithm work reviewable without publishing
-private handoff notes, local logs, or planning scratchpads. The goal is to show
-the concrete runtime architecture and validation surface that will eventually
-replace the older database-heavy trip planner.
+Este trabajo está público para que el algoritmo, los tests y el runtime se
+puedan revisar sin publicar notas privadas, logs locales ni scratchpads de
+planificación. La meta es mostrar la arquitectura concreta que eventualmente
+reemplazará el planner viejo basado en base de datos.

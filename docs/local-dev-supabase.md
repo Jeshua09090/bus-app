@@ -1,55 +1,70 @@
-# Local Supabase Development
+# Desarrollo Local Con Supabase
 
-This repo can run a local Supabase stack with Docker for zero-risk data work before applying reviewed SQL to the remote project.
+Este repo puede usar una base local de Supabase con Docker para probar cambios
+de datos sin tocar el proyecto remoto.
 
-## When To Use This
+Este flujo es principalmente para maintainers. Un clon público no trae una base
+Supabase completa ni un seed nacional; los cambios SQL revisables viven en
+`sql/`, y los dumps o seeds grandes se generan localmente cuando haga falta.
 
-Use local Supabase before transit data fixes that need snapshot regeneration, such as route windows, route pattern stops, transfer edges, or runtime seed work. Local is not a Supabase preview branch: it is an isolated Docker database for iteration. Remote changes still need reviewed SQL before apply.
+## Cuándo Usar Esto
 
-## Requirements
+Usá Supabase local antes de cambios de datos que necesiten regenerar snapshots:
+ventanas de servicio, paradas por patrón, enlaces de transbordo o seeds del
+runtime.
 
-- Docker Desktop with WSL2 backend running.
-- Supabase CLI via `npx supabase@latest`.
-- The repo linked to your remote project with `npx supabase link --project-ref <project-ref>`.
+Local no es una preview branch de Supabase. Es una base Docker aislada para
+iterar. Los cambios remotos deben pasar por SQL revisable antes de aplicarse.
 
-Do not run `supabase migration repair` just because `db pull` reports remote/local history mismatch. That command mutates remote migration history. For this repo, use a schema dump baseline for local development instead.
+## Requisitos
 
-## Local Setup
+- Docker Desktop con backend WSL2 corriendo.
+- Supabase CLI vía `npx supabase@latest`.
+- Acceso a un proyecto Supabase con el schema/datos correctos, solo si vas a
+  regenerar snapshots reales.
 
-Start the stack:
+No corrás `supabase migration repair` solo porque `db pull` reporte diferencias
+entre historial local y remoto. Ese comando muta el historial remoto de
+migraciones. Para este repo, preferí dumps deliberados y SQL revisable.
+
+Si no tenés acceso al proyecto Supabase, todavía podés revisar la app, el
+runtime RAPTOR, los tests unitarios y la documentación.
+
+## Setup Local
+
+Arrancar la base local:
 
 ```powershell
 npx supabase start
 ```
 
-Local URLs:
+URLs locales:
 
 - Studio: `http://127.0.0.1:54323`
 - Database: `postgresql://postgres:postgres@127.0.0.1:54322/postgres`
 - API: `http://127.0.0.1:54321`
 
-`npx supabase status` is the primary local health check. The local `vector`
-log collector may restart on Docker Desktop if it cannot connect to the Docker
-logs source, but DB/API/Studio remain usable for this repo's snapshot and data
-fix workflow as long as `supabase status` reports the setup running and
-`supabase_db_busescr` is healthy.
+`npx supabase status` es el check principal. El collector local `vector` puede
+reiniciarse en Docker Desktop si no logra leer logs, pero DB/API/Studio siguen
+sirviendo para snapshots y cambios de datos mientras `supabase status` reporte
+el stack corriendo y `supabase_db_busescr` esté sano.
 
-Stop the stack when not in use:
+Detener el stack:
 
 ```powershell
 npx supabase stop
 ```
 
-## Schema Baseline
+## Schema Y SQL Revisable
 
-The current local setup uses these local migrations:
+El repo público no depende de una carpeta `supabase/migrations/` ya generada.
+Los cambios SQL revisables se guardan en `sql/`.
 
-- `supabase/migrations/20260520000000_local_extensions.sql`
-- `supabase/migrations/20260521000000_remote_schema_baseline.sql`
+Cuando un maintainer necesite reconstruir una base local completa, puede generar
+un baseline local con Supabase CLI. Ese archivo debe revisarse antes de
+committearse, y no debe incluir datos privados.
 
-The extension migration creates the `extensions` schema and enables `postgis` and `btree_gist`, which are required by the remote schema baseline.
-
-If the remote schema must be refreshed, dump it deliberately:
+Si el schema remoto debe refrescarse, hacelo deliberadamente:
 
 ```powershell
 npx supabase db dump --linked --schema public --file supabase/migrations/<timestamp>_remote_schema_baseline.sql
@@ -57,29 +72,33 @@ npx supabase db dump --linked --schema public --file supabase/migrations/<timest
 
 Review the generated SQL before using it as a new baseline.
 
-## Data Seed
+## Seed De Datos
 
-`supabase db pull` only synchronizes schema, not table data. RAPTOR snapshot generation needs the transit tables populated.
+`supabase db pull` solo sincroniza schema, no datos. La generación de snapshots
+RAPTOR necesita tablas de transporte pobladas.
 
-Create a data-only dump:
+Crear un dump solo de datos:
 
 ```powershell
 npx supabase db dump --linked --data-only --schema public --use-copy --file supabase/seed.sql
 ```
 
-`supabase/seed.sql` is intentionally ignored by Git because it is large and environment-specific.
+`supabase/seed.sql` está ignorado por Git porque es grande y depende del entorno.
 
-The CLI seed runner can fail on large `COPY` dumps. Load the seed directly into local Postgres instead:
+El seed runner del CLI puede fallar con dumps `COPY` grandes. En ese caso cargá
+el seed directo en Postgres local:
 
 ```powershell
 docker cp supabase\seed.sql supabase_db_busescr:/tmp/busescr_seed.sql
 docker exec supabase_db_busescr psql -U postgres -d postgres -v ON_ERROR_STOP=1 -f /tmp/busescr_seed.sql
 ```
 
-If the seed fails after the RAPTOR-critical tables have loaded, verify the tables before retrying. A known non-blocking failure can occur later when compiling unrelated CTP staging functions that reference unqualified geometry types.
+Si el seed falla después de cargar las tablas críticas para RAPTOR, verificá esas
+tablas antes de reintentar. Puede aparecer un fallo no bloqueante al compilar
+funciones CTP de staging que referencian tipos geometry sin schema explícito.
 
-Expected RAPTOR-critical counts after a fresh remote seed, before applying any
-local-only FU SQL:
+Conteos esperados para tablas críticas de RAPTOR después de un seed remoto
+fresco, antes de SQL local-only:
 
 | Table | Expected Count |
 | --- | ---: |
@@ -91,9 +110,9 @@ local-only FU SQL:
 | `planner_boarding_points` | 24885 |
 | `planner_transfer_edges` | 49586 |
 
-## Snapshot Generation Against Local DB
+## Generar Snapshot Contra DB Local
 
-Point the snapshot generator at local Postgres:
+Apuntar el generador al Postgres local:
 
 ```powershell
 $env:SNAPSHOT_DATABASE_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
@@ -101,7 +120,7 @@ npm run snapshot:dev
 Remove-Item Env:SNAPSHOT_DATABASE_URL
 ```
 
-Bundle the newest generated snapshot into the app:
+Empaquetar el snapshot generado en la app:
 
 ```powershell
 npm run snapshot:bundle
@@ -117,7 +136,7 @@ npm run raptor:golden
 npm run raptor:outward-discovery
 ```
 
-Current verified remote-backed bundled baseline:
+Baseline actual verificado con datos remotos:
 
 - Snapshot: `v20260521T204708Z-cartago-local`
 - `npm --prefix .\scripts\snapshot test`: 37/37 pass
@@ -128,18 +147,17 @@ Current verified remote-backed bundled baseline:
 - `npm run raptor:outward-discovery`: 14 expected + 1 acceptable, 0 watches,
   0 data gaps
 
-The remote project now includes the two outward data fixes first validated
-locally:
+El proyecto remoto incluye estos arreglos de datos validados primero en local:
 
 - `sql/cartago_outward_cartago_ice_special_windows_v1.sql`
 - `sql/cartago_outward_route4692_westside_reactivation_v1.sql`
 
-Rollback files were written and tested locally before remote apply:
+Los rollbacks se escribieron y probaron localmente antes de aplicar remoto:
 
 - `sql/cartago_outward_cartago_ice_special_windows_v1_rollback.sql`
 - `sql/cartago_outward_route4692_westside_reactivation_v1_rollback.sql`
 
-Current post-FU1/FU2 local critical counts:
+Conteos locales críticos post-FU1/FU2:
 
 | Metric | Count |
 | --- | ---: |
@@ -150,28 +168,42 @@ Current post-FU1/FU2 local critical counts:
 | `route_pattern_stops` | 13791 |
 | `planner_transfer_edges` | 49586 |
 
-## Known Local Setup Finding
+## Hallazgo Local Conocido
 
-Local Postgres returns `bigint` ids as strings through `pg`. The snapshot generator must not compare raw `row.id` to parsed numeric ids with strict equality when joining route metadata. `scripts/snapshot/src/read-postgres.ts` now builds route patterns directly from each row so `route_name` uses the clean `rutas.nombre_ruta`, while `pattern_name` keeps directional labels such as `/ IDA` and `/ VUELTA`.
+Postgres local devuelve ids `bigint` como strings a través de `pg`. El generador
+de snapshots no debe comparar `row.id` crudo contra ids numéricos parseados con
+igualdad estricta al unir metadatos de ruta. `scripts/snapshot/src/read-postgres.ts`
+arma los route patterns desde cada fila para que `route_name` use
+`rutas.nombre_ruta`, mientras `pattern_name` conserva etiquetas direccionales
+como `/ IDA` y `/ VUELTA`.
 
-## Remote Apply Pattern
+## Patrón Para Aplicar Remoto
 
-For data fixes:
+Para arreglos de datos:
 
-1. Apply and validate SQL locally first.
-2. Regenerate the local snapshot and run the RAPTOR checks above.
-3. Prepare a reviewed SQL migration for remote.
-4. Apply remote deliberately with the CLI or SQL editor.
-5. Regenerate and bundle the production snapshot.
+1. Aplicar y validar SQL localmente.
+2. Regenerar el snapshot local y correr los checks RAPTOR relevantes.
+3. Preparar SQL revisable para remoto.
+4. Aplicar remoto de forma deliberada con CLI o SQL editor.
+5. Regenerar y empaquetar el snapshot de producción.
 
-Do not use automatic `db push` for unreviewed data fixes.
+No usés `db push` automático para arreglos de datos no revisados.
 
-## Security Note
+## Nota De Seguridad
 
-Supabase advisors currently flag `public.ruta_puntos` because RLS is disabled. Do not enable RLS blindly without policies; it can break reads/writes. The minimal remediation is:
+Las tablas legacy de rutas y trazas pueden aparecer en Supabase Advisors si RLS
+está apagado o si las políticas son demasiado amplias. No activés RLS a ciegas:
+puede romper lecturas/escrituras si no hay políticas correctas.
+
+Para tablas de solo lectura pública, las políticas deben ser explícitas. Para
+tablas con GPS, trazas o datos operativos, el acceso debe limitarse a dueños,
+roles internos o administradores antes de producción.
+
+La acción mínima para una tabla candidata es:
 
 ```sql
 ALTER TABLE public.ruta_puntos ENABLE ROW LEVEL SECURITY;
 ```
 
-Add policies that match the intended access model before applying this remotely.
+Agregá políticas que correspondan al modelo de acceso antes de aplicar esto en
+remoto.

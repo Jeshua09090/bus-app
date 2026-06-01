@@ -1,15 +1,18 @@
-# Code of Conduct
+# Código De Conducta
 
-Be respectful, practical, and specific.
+Sé respetuoso, práctico y específico.
 
-This project depends on local transit knowledge, which means people may disagree
-about routes, stops, names, or what a rider would actually do. Treat that as
-useful context, not a reason to talk down to someone.
+Este proyecto depende de conocimiento local de transporte. Eso significa que
+puede haber desacuerdos sobre rutas, paradas, nombres, referencias o lo que una
+persona realmente haría para llegar. Tratá esos desacuerdos como contexto útil,
+no como una razón para hablarle mal a alguien.
 
-Helpful contributions usually do three things:
+Las contribuciones más útiles suelen hacer tres cosas:
 
-- explain the issue clearly
-- give enough detail for someone else to verify it
-- leave the project easier to understand than before
+- explicar el problema con claridad
+- dar suficiente detalle para que otra persona lo verifique
+- dejar el proyecto más fácil de entender que antes
 
-Harassment, personal attacks, and bad-faith behavior are not welcome here.
+No se aceptan acoso, ataques personales, insultos, discriminación ni
+participación de mala fe. Si algo necesita moderación, abrí un issue con detalles
+no sensibles o contactá al maintainer por un canal privado cuando sea necesario.

@@ -1,32 +1,53 @@
-# Security
+# Seguridad
 
-Buses CR is an early-stage transit app, not a production transit authority
-system. Security work is handled in practical layers: keep secrets out of the
-repo, keep Supabase policies explicit, and make location-related risks visible
-before the app handles real passenger or driver data at scale.
+Buses CR es una app de transporte en etapa temprana, no un sistema de autoridad
+de tránsito en producción. La seguridad se trabaja por capas prácticas: mantener
+secretos fuera del repo, hacer visibles los riesgos de ubicación y tratar las
+políticas de Supabase como parte del diseño, no como un detalle final.
 
-## Reporting
+## Reportar Un Problema
 
-Please use GitHub Security Advisories for private reports when possible. If that
-is not available, open an issue with only non-sensitive details and say that you
-have a private security concern.
+Para reportes privados, usá GitHub Security Advisories:
 
-## Current Notes
+<https://github.com/Jeshua09090/buses-cr/security/advisories/new>
 
-- Public Expo variables are treated as publishable client config, not secrets.
-- Private tokens, local dumps, generated logs, and seed data should stay out of
-  Git.
-- Live bus positions currently use Supabase Realtime Broadcast while the app is
-  still in validation. Before production, driver authentication and channel
-  authorization should be tightened.
-- Route trace SQL is useful for data work, but GPS traces are sensitive. Any
-  production use should restrict read/update access to the right owners or admin
-  roles instead of broad authenticated access.
-- Old Mapbox or Supabase keys that were ever shared outside the repo should be
-  rotated rather than trusted.
-- Dependency checks currently gate high-severity advisories. Remaining moderate
-  Expo-chain advisories should be handled as part of a normal SDK upgrade, not
-  by forcing a major dependency jump inside a review branch.
+Si no podés usar advisories, abrí un issue con solo detalles no sensibles y decí
+que tenés un posible problema de seguridad para coordinarlo en privado.
 
-This file is intentionally plain-spoken. It is a checklist for where the project
-is today, not a claim that the app has passed a formal security audit.
+No incluyás tokens, dumps de base de datos, coordenadas privadas, datos de
+usuarios, llaves de Supabase, tokens de Mapbox ni URLs internas en issues
+públicos.
+
+## Alcance Actual
+
+El repo público cubre:
+
+- app móvil Expo/React Native
+- runtime RAPTOR y herramientas de snapshot
+- SQL revisable para datos y soporte del planner
+- documentación, templates y scripts locales
+
+El proyecto todavía no maneja una operación pública de producción con choferes o
+pasajeros reales a escala. Cualquier flujo que use trazas GPS o ubicación de
+flota debe tratarse como sensible antes de producción.
+
+## Notas Vigentes
+
+- Las variables `EXPO_PUBLIC_*` son configuración publicable del cliente, no
+  secretos.
+- Tokens privados, dumps locales, logs generados y seed data deben quedarse fuera
+  de Git.
+- Las posiciones en vivo usan Supabase Realtime Broadcast durante validación.
+  Antes de producción hay que endurecer autenticación de choferes y autorización
+  de canales.
+- Los SQL de trazas de ruta ayudan para trabajo de datos, pero las trazas GPS son
+  sensibles. Cualquier uso productivo debe limitar lectura/escritura a dueños,
+  roles operativos o administradores.
+- Llaves antiguas de Mapbox o Supabase que hayan sido compartidas fuera del repo
+  deben rotarse.
+- El CI bloquea advisories de severidad alta. Los advisories moderados que vienen
+  de la cadena de Expo deben manejarse con upgrades normales de SDK, no forzando
+  saltos grandes dentro de una rama de revisión.
+
+Este archivo no afirma que la app tenga una auditoría formal. Es una descripción
+honesta del estado actual y de los riesgos que no queremos esconder.

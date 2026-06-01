@@ -1,5 +1,5 @@
-name: Bug report
-description: Report something broken or confusing in the app.
+name: Reporte de bug
+description: Reportá algo roto o confuso en la app.
 title: "[Bug]: "
 labels:
   - bug
@@ -7,28 +7,28 @@ body:
   - type: textarea
     id: problem
     attributes:
-      label: What happened?
-      description: Tell us what you saw and what you expected instead.
+      label: ¿Qué pasó?
+      description: Contá qué viste y qué esperabas que pasara.
     validations:
       required: true
   - type: textarea
     id: steps
     attributes:
-      label: Steps to reproduce
-      description: Include the screen, route, or command you used.
+      label: Pasos para reproducir
+      description: Incluí pantalla, ruta, búsqueda o comando usado.
       placeholder: |
-        1. Open...
-        2. Search...
-        3. See...
+        1. Abrí...
+        2. Busqué...
+        3. Vi...
     validations:
       required: true
   - type: input
     id: platform
     attributes:
-      label: Platform
-      placeholder: Android, iOS, web, or local script
+      label: Plataforma
+      placeholder: Android, iOS, web o script local
   - type: textarea
     id: context
     attributes:
-      label: Extra context
-      description: Logs, screenshots, route names, or anything else that helps.
+      label: Contexto extra
+      description: Logs, capturas, nombres de ruta o cualquier detalle útil.

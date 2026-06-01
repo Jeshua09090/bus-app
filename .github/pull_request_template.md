@@ -1,15 +1,22 @@
-## What changed
+## Qué cambió
 
-Briefly describe the change and why it matters.
+Contá brevemente qué cambió y por qué importa.
 
-## How I checked it
+## Cómo lo revisé
 
 - [ ] `npm run lint`
 - [ ] `npx tsc --noEmit`
-- [ ] Relevant RAPTOR or snapshot tests
-- [ ] Manual check, if this changes the app UI or route behavior
+- [ ] `npm audit --audit-level=high`
+- [ ] `npm --prefix scripts/snapshot audit --audit-level=high`
+- [ ] Tests relevantes de RAPTOR o snapshot
+- [ ] Revisión manual, si cambia UI, rutas o datos
 
-## Notes for reviewers
+## Supuestos o límites
 
-Call out any data assumptions, environment variables, or real-world validation
-that still needs to happen.
+Mencioná variables de entorno, datos de Supabase, fixtures locales o validación
+en calle que todavía haga falta.
+
+## Notas para reviewers
+
+Agregá cualquier riesgo, decisión pendiente o contexto que haga la revisión más
+fácil.

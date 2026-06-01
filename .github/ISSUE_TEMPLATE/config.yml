@@ -1,5 +1,5 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
-  - name: Security concern
+  - name: Reporte privado de seguridad
     url: https://github.com/Jeshua09090/buses-cr/security/advisories/new
-    about: Please report private security issues through GitHub Security Advisories when possible.
+    about: Usá GitHub Security Advisories cuando el reporte incluya detalles sensibles.
