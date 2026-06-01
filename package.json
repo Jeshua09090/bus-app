@@ -1,7 +1,33 @@
 {
   "name": "buses-cr",
+  "description": "Open-source mobile transit app and route-planning work for Costa Rica buses.",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jeshua09090/buses-cr.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Jeshua09090/buses-cr/issues"
+  },
+  "homepage": "https://github.com/Jeshua09090/buses-cr#readme",
+  "keywords": [
+    "costa-rica",
+    "public-transport",
+    "transit",
+    "route-planning",
+    "raptor",
+    "expo",
+    "react-native",
+    "supabase",
+    "mapbox"
+  ],
+  "author": "Jeshua09090",
+  "engines": {
+    "node": ">=24.11.0",
+    "npm": ">=11.5.2"
+  },
   "scripts": {
     "start": "expo start",
     "start:dev": "expo start --dev-client",

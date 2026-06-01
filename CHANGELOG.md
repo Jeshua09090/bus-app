@@ -1,23 +1,24 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+Los cambios relevantes del proyecto se documentan aquí.
 
-The format is inspired by Keep a Changelog, adapted to the current stage of the repo.
+El formato está inspirado en Keep a Changelog, adaptado al estado temprano del
+repo.
 
 ## [Unreleased]
 
 ### Added
 
-- Web `planner-lab` for inspecting itinerary output, map traces, walking legs, and route alternatives
-- Passenger-side screens for favorites, saved places, trip details, alerts, service status, stop reporting, and related flows
-- SQL and Supabase planner work for hubs, service groups, stop areas, transfer links, and official CTP corridor seeding
+- `planner-lab` web para inspeccionar itinerarios, trazos de mapa, caminatas y alternativas de ruta
+- Pantallas de pasajero para favoritos, lugares guardados, detalle de viaje, alertas, estado de servicio, reporte de paradas y flujos relacionados
+- Trabajo SQL/Supabase para hubs, service groups, stop areas, enlaces de transbordo y seeds de corredores CTP
 
 ### Changed
 
-- README rewritten to describe the project more honestly as a Costa Rica-wide transit product in progress
-- Planner logic improved to reduce low-value local cleanup transfers and better reflect real local travel behavior
-- Web search flows updated around Mapbox search behavior and planner-lab inspection
+- README reescrito en español como idioma base del proyecto, con versión inglesa para reviewers internacionales
+- Planner mejorado para reducir transbordos locales de bajo valor y reflejar mejor viajes reales
+- Flujos de búsqueda web ajustados alrededor de Mapbox y planner-lab
 
 ### Notes
 
-- The codebase is still in an active product-building phase, so this changelog is being established before a cleaner public push
+- El código sigue en una fase activa de producto; este changelog ayuda a ordenar el contexto público

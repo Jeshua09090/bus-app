@@ -1,35 +1,36 @@
 # Roadmap
 
-Buses CR is being built in small, validation-heavy steps. The goal is not to
-pretend the whole country is solved at once; it is to make each corridor more
-honest before widening coverage.
+Buses CR se está construyendo en pasos pequeños y verificables. La idea no es
+pretender que todo el país queda resuelto de una vez, sino mejorar cada corredor
+con evidencia antes de ampliar cobertura.
 
-## Now
+## Ahora
 
-- Improve route-planning quality in the first Cartago validation corridors.
-- Validate the in-memory RAPTOR runtime against real local trips.
-- Keep live bus position updates lightweight with Supabase Realtime Broadcast.
-- Preserve a mobile-first map interface for passengers.
-- Make the public repository easier to understand and contribute to.
+- Mejorar la calidad del planner en los primeros corredores de validación.
+- Validar el runtime RAPTOR contra viajes reales locales.
+- Mantener posiciones en vivo livianas con Supabase Realtime Broadcast.
+- Preservar una interfaz móvil primero, con mapa y controles sobre el mapa.
+- Hacer que el repo público sea más fácil de revisar y contribuir.
 
-## Next
+## Siguiente
 
-- Publish clearer sample validation cases for planner behavior.
-- Expand route and stop coverage beyond the current Cartago-heavy validation set.
-- Improve onboarding and environment setup for contributors.
-- Harden driver tracking flows and background location behavior.
-- Add more public documentation around transit data assumptions.
+- Publicar casos de validación más claros para el planner.
+- Ampliar cobertura de rutas y paradas fuera del núcleo inicial de Cartago.
+- Mejorar onboarding y setup para contribuidores.
+- Endurecer tracking de choferes y comportamiento de ubicación en segundo plano.
+- Documentar mejor los supuestos de datos de transporte.
 
-## Later
+## Después
 
-- Broaden Costa Rica coverage corridor by corridor.
-- Support richer service status, alerts, and route-change history.
-- Improve offline-friendly behavior for common passenger flows.
-- Package reusable planner/data tooling where it can help other transit projects.
+- Ampliar cobertura nacional corredor por corredor.
+- Soportar estados de servicio, alertas y cambios históricos de ruta.
+- Mejorar flujos offline-friendly para pasajeros.
+- Separar tooling reutilizable de planner/datos cuando pueda ayudar a otros
+  proyectos de transporte.
 
-## Non-Goals For Now
+## No Objetivos Por Ahora
 
-- No production guarantee for official transit coverage.
-- No frequent database writes for live bus positions.
-- No desktop-first redesign.
-- No default-on planner runtime until enough real-world validation passes.
+- No prometer cobertura oficial completa.
+- No escribir posiciones en vivo con frecuencia alta en la base de datos.
+- No rediseñar con supuestos desktop-first.
+- No activar RAPTOR por defecto hasta tener suficiente validación real.

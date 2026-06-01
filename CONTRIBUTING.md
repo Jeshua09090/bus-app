@@ -1,62 +1,82 @@
-# Contributing
+# Contribuir
 
-Thanks for helping improve Buses CR.
+Gracias por ayudar a mejorar Buses CR.
 
-This project is still early, so the best contributions are concrete and
-verifiable. Local knowledge is especially valuable.
+El proyecto todavía está temprano, así que las mejores contribuciones son
+concretas y verificables. El conocimiento local vale muchísimo: nombres de
+paradas, referencias, variantes de ruta, transbordos reales y casos donde el
+planner se equivoca.
 
-## Good First Areas
+## Buenas Primeras Áreas
 
-- document real bus corridors, stops, route variants, and transfer points
-- add small planner validation cases with clear origin/destination context
-- improve mobile accessibility, loading states, and map interaction polish
-- simplify setup instructions and environment documentation
-- report confusing route results with enough detail to reproduce them
+- documentar corredores, paradas, variantes y puntos de transbordo reales
+- agregar casos pequeños de validación con origen/destino claro
+- mejorar accesibilidad móvil, estados de carga e interacción con el mapa
+- simplificar setup y documentación de entorno
+- reportar resultados confusos del planner con datos suficientes para repetirlos
 
-## Local Setup
+## Setup Local
+
+Usá Node `24.11.0` o compatible y npm `11.5.2` o superior. El CI corre con esa
+versión para mantenerse alineado con `minotor` y el lockfile.
 
 ```bash
 npm install
 npm run start
 ```
 
-For linting:
+Para lint:
 
 ```bash
 npm run lint
 ```
 
-Some planner and live-fleet paths require project-specific Supabase data and
-tokens. If a flow cannot be reproduced from a clean clone, describe the missing
-data rather than guessing.
+Checks útiles antes de abrir PR:
 
-## Contribution Style
+```bash
+npx tsc --noEmit
+npm audit --audit-level=high
+npm --prefix scripts/snapshot audit --audit-level=high
+npm run raptor:test
+npm run snapshot:test
+```
 
-- Keep changes focused on one concern.
-- Prefer TypeScript for app code.
-- Use `@rnmapbox/maps` for maps.
-- Do not commit secrets, tokens, local logs, or private datasets.
-- For transit data changes, include the route/corridor and why the change is
-  locally valid.
-- For planner changes, include at least one before/after case or validation
-  note.
+No todos los cambios necesitan correr todo. Si un flujo depende de datos privados
+de Supabase o de tokens locales, explicá qué no se pudo reproducir en vez de
+inventar resultados.
 
-## Reporting Route Issues
+## Estilo De Contribución
 
-When reporting a route-planning issue, include:
+- Mantené cada PR enfocado en un solo tema.
+- Preferí TypeScript para código de app.
+- Usá `@rnmapbox/maps` para mapas.
+- No subás secretos, tokens, logs locales ni datasets privados.
+- Para cambios de datos de transporte, indicá corredor/ruta y por qué el cambio
+  es válido localmente.
+- Para cambios del planner, incluí al menos un caso antes/después o una nota de
+  validación.
+- Para cambios visuales, las capturas ayudan, pero no son obligatorias si el
+  cambio no toca UI.
 
-- origin and destination
-- approximate desired departure time
-- expected route or transfer behavior
-- actual route shown by the app
-- whether the issue is about walking, waiting, route choice, transfer point, or
-  missing data
+## Reportar Problemas De Rutas
+
+Cuando reportés un problema del planificador, incluí:
+
+- origen y destino
+- hora aproximada de salida
+- ruta o transbordo esperado
+- ruta que mostró la app
+- si el problema parece de caminata, espera, ruta elegida, punto de transbordo o
+  datos faltantes
 
 ## Pull Requests
 
-Before opening a pull request:
+Antes de abrir un pull request:
 
-- run the smallest relevant check you can
-- keep screenshots optional unless the change is visual
-- explain any data assumptions
-- call out work that still needs real-world validation
+- corré el check más pequeño que realmente aplique
+- explicá supuestos de datos o variables de entorno
+- marcá cualquier cosa que todavía necesite validación en calle
+- mantené el texto humano: qué cambió, por qué importa, cómo se revisó
+
+English is welcome in issues or PRs. Spanish is the source language for the
+project docs because the first users and validation context are in Costa Rica.
