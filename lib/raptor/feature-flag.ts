@@ -1,5 +1,5 @@
-const INSTALLATION_ID_STORAGE_KEY = '@cartagobuses/raptor-runtime-installation-id:v1';
-const DEFAULT_ROLLOUT_SALT = 'cartagobuses-raptor-runtime-v1';
+const INSTALLATION_ID_STORAGE_KEY = '@busescr/raptor-runtime-installation-id:v1';
+const DEFAULT_ROLLOUT_SALT = 'busescr-raptor-runtime-v1';
 
 let cachedInstallationId: string | null = null;
 

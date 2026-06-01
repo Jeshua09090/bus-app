@@ -320,7 +320,10 @@ const PREVIEW_TIMEOUT_BACKOFF_MS = 2 * 60_000;
 const PLANNER_LOCATION_CONTEXT_BACKOFF_MS = 5 * 60_000;
 const PLANNER_SERVICE_GROUP_BACKOFF_MS = 5 * 60_000;
 const WALK_NETWORK_VALIDATION_LIMIT = 24;
-const PARTIAL_PLANNER_PROJECT_REFS = ['gmasubxrxudocrhighge'];
+const PARTIAL_PLANNER_PROJECT_REFS: string[] = String(process.env.EXPO_PUBLIC_PARTIAL_PLANNER_PROJECT_REFS ?? '')
+  .split(',')
+  .map((projectRef: string) => projectRef.trim())
+  .filter(Boolean);
 const stopCache = new Map<number, Promise<Parada[]>>();
 const stopByIdCache = new Map<number, Parada>();
 const trajectoryCache = new Map<number, Promise<[number, number][][]>>();

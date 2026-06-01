@@ -51,7 +51,7 @@ export type RouteTraceSyncResult = {
   failed: number;
 };
 
-const ROUTE_TRACE_STORAGE_KEY = '@cartagobuses/route-traces:v1';
+const ROUTE_TRACE_STORAGE_KEY = '@busescr/route-traces:v1';
 
 function createLocalId() {
   return `trace-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;

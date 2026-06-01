@@ -62,9 +62,13 @@ const config = {
   },
   extra: {
     router: {},
-    eas: {
-      projectId: 'bd0ec63f-ce5e-4d28-a2d2-1110cafd6086',
-    },
+    ...(process.env.EAS_PROJECT_ID
+      ? {
+          eas: {
+            projectId: process.env.EAS_PROJECT_ID,
+          },
+        }
+      : {}),
   },
 };
 

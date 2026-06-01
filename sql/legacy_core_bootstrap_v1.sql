@@ -10,7 +10,7 @@ create table if not exists public.rutas (
   canton_inicio text,
   canton_final text,
   distancia_km double precision,
-  a�o_ramal text,
+  "año_ramal" text,
   geometry jsonb
 );
 

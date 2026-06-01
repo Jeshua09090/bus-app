@@ -173,7 +173,7 @@ begin
   heuristics as (
     select
       r.*,
-      coalesce(r.stop_description_normalized, '') ~* '(TERMINAL|PARADA FINAL|PARADA INICIAL|ESTACION|ESTACIÃ“N|TERMINALES DE COSTA RICA|TERMINALES|ULTIMA PARADA|ÃšLTIMA PARADA)' as is_terminal_hint
+      coalesce(r.stop_description_normalized, '') ~* '(TERMINAL|PARADA FINAL|PARADA INICIAL|ESTACION|TERMINALES DE COSTA RICA|TERMINALES|ULTIMA PARADA)' as is_terminal_hint
     from ranked r
   ),
   scored as (

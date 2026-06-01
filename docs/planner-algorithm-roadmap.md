@@ -1,6 +1,6 @@
 # Planner Algorithm Roadmap
 
-This document captures the next algorithm work for `CartagoBuses` after the first generation of corridor fixes, hubs, and planner lab debugging.
+This document captures the next algorithm work for `Buses CR` after the first generation of corridor fixes, hubs, and planner lab debugging.
 
 ## Core Direction
 

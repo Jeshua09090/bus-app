@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const HOME_ALERTS_STORAGE_KEY = '@cartagobuses/home-alerts:v1';
+export const HOME_ALERTS_STORAGE_KEY = '@busescr/home-alerts:v1';
 
 export type StoredHomeAlert = {
   id: string;

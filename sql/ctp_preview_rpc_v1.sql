@@ -84,7 +84,7 @@ as $$
     format('ctp:%s:%s', n.ruta_id, n.stop_source_id) as id,
     n.stop_name,
     n.ruta_id as route_id,
-    n.route_name_base || ' � preview CTP' as route_name,
+    n.route_name_base || ' - preview CTP' as route_name,
     n.route_code,
     n.distance_m
   from nearby n

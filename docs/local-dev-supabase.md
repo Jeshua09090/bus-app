@@ -10,7 +10,7 @@ Use local Supabase before transit data fixes that need snapshot regeneration, su
 
 - Docker Desktop with WSL2 backend running.
 - Supabase CLI via `npx supabase@latest`.
-- The repo linked to the remote project with `npx supabase link --project-ref gmasubxrxudocrhighge`.
+- The repo linked to your remote project with `npx supabase link --project-ref <project-ref>`.
 
 Do not run `supabase migration repair` just because `db pull` reports remote/local history mismatch. That command mutates remote migration history. For this repo, use a schema dump baseline for local development instead.
 
@@ -32,7 +32,7 @@ Local URLs:
 log collector may restart on Docker Desktop if it cannot connect to the Docker
 logs source, but DB/API/Studio remain usable for this repo's snapshot and data
 fix workflow as long as `supabase status` reports the setup running and
-`supabase_db_CartagoBuses` is healthy.
+`supabase_db_busescr` is healthy.
 
 Stop the stack when not in use:
 
@@ -72,8 +72,8 @@ npx supabase db dump --linked --data-only --schema public --use-copy --file supa
 The CLI seed runner can fail on large `COPY` dumps. Load the seed directly into local Postgres instead:
 
 ```powershell
-docker cp supabase\seed.sql supabase_db_CartagoBuses:/tmp/cartagobuses_seed.sql
-docker exec supabase_db_CartagoBuses psql -U postgres -d postgres -v ON_ERROR_STOP=1 -f /tmp/cartagobuses_seed.sql
+docker cp supabase\seed.sql supabase_db_busescr:/tmp/busescr_seed.sql
+docker exec supabase_db_busescr psql -U postgres -d postgres -v ON_ERROR_STOP=1 -f /tmp/busescr_seed.sql
 ```
 
 If the seed fails after the RAPTOR-critical tables have loaded, verify the tables before retrying. A known non-blocking failure can occur later when compiling unrelated CTP staging functions that reference unqualified geometry types.

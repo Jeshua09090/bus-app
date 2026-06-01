@@ -26,7 +26,7 @@ function sqlTextArray(values) {
   return `array[${values.map(sqlString).join(',')}]::text[]`;
 }
 
-const container = getArg('--container', process.env.SUPABASE_DB_CONTAINER || 'supabase_db_CartagoBuses');
+const container = getArg('--container', process.env.SUPABASE_DB_CONTAINER || 'supabase_db_busescr');
 const database = getArg('--database', 'postgres');
 const user = getArg('--user', 'postgres');
 const stopBatchSize = Number(getArg('--stopBatchSize', '500'));

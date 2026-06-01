@@ -94,8 +94,8 @@ with base as (
             coalesce(r.codigo_ctp, '')
           )
         ),
-        '�������',
-        'AEIOUUN'
+        'ÁÉÍÓÚÜÑáéíóúüñ',
+        'AEIOUUNaeiouun'
       )
     ) as search_name
   from public.route_patterns rp
@@ -110,11 +110,11 @@ inferred as (
       when b.search_name ~ '(^|[^A-Z])(TRONCAL|CORREDOR|TERMINAL)([^A-Z]|$)' then 'troncal'
       when b.search_name ~ '^[A-Z ]+-(LIMON|SAN JOSE|ALAJUELA)($|[^A-Z])'
        and b.search_name !~ '^(LIMON|SAN JOSE|ALAJUELA)-' then 'interurbana'
-      when b.search_name ~ '(BARRIO|B[�.]|URBANIZACION|RESIDENCIAL)' then 'local'
+      when b.search_name ~ '(BARRIO|B[.]|URBANIZACION|RESIDENCIAL)' then 'local'
       when b.search_name ~ '^(CARTAGO|ALAJUELA|HEREDIA|SAN JOSE|CARIARI|GRECIA|LIBERIA|NICOYA|PUNTARENAS|CIUDAD QUESADA|PEREZ ZELEDON|PALMARES)-'
        and b.search_name !~ '-(SAN JOSE|TURRIALBA|PARAISO|LIMON|ALAJUELA|HEREDIA|LIBERIA|NICOYA|PUNTARENAS|CIUDAD QUESADA|PEREZ ZELEDON|PALMARES)($|[^A-Z])' then 'local'
       when b.search_name ~ '(SAN JOSE|TURRIALBA|PARAISO|OROSI|CERVANTES|PACAYAS|JUAN VINAS|TRES RIOS|LA UNION|IRAZU|TEJAR|EL GUARCO|COT|LIMON)' then 'interurbana'
-      when b.search_name ~ '(TARAS|SAN NICOLAS|AGUACALIENTE|GUADALUPE|OCCIDENTAL|ORIENTAL|LOURDES|DULCE NOMBRE|TIERRA BLANCA|BLANQUILLO|EL ALTO|MATA DE MORA|PIEDRA AZUL|PE�A BLANCA|LOAIZA|EL HUMO|LA PUEBLA|PARQUE INDUSTRIAL|RIO MACHO|SANTIAGO)' then 'local'
+      when b.search_name ~ '(TARAS|SAN NICOLAS|AGUACALIENTE|GUADALUPE|OCCIDENTAL|ORIENTAL|LOURDES|DULCE NOMBRE|TIERRA BLANCA|BLANQUILLO|EL ALTO|MATA DE MORA|PIEDRA AZUL|PE.?A BLANCA|LOAIZA|EL HUMO|LA PUEBLA|PARQUE INDUSTRIAL|RIO MACHO|SANTIAGO)' then 'local'
       else 'desconocida'
     end as categoria_inferida
   from base b
@@ -153,8 +153,8 @@ with base as (
             coalesce(r.codigo_ctp, '')
           )
         ),
-        '�������',
-        'AEIOUUN'
+        'ÁÉÍÓÚÜÑáéíóúüñ',
+        'AEIOUUNaeiouun'
       )
     ) as search_name
   from public.route_patterns rp
@@ -169,11 +169,11 @@ inferred as (
       when b.search_name ~ '(^|[^A-Z])(TRONCAL|CORREDOR|TERMINAL)([^A-Z]|$)' then 'troncal'
       when b.search_name ~ '^[A-Z ]+-(LIMON|SAN JOSE|ALAJUELA)($|[^A-Z])'
        and b.search_name !~ '^(LIMON|SAN JOSE|ALAJUELA)-' then 'interurbana'
-      when b.search_name ~ '(BARRIO|B[�.]|URBANIZACION|RESIDENCIAL)' then 'local'
+      when b.search_name ~ '(BARRIO|B[.]|URBANIZACION|RESIDENCIAL)' then 'local'
       when b.search_name ~ '^(CARTAGO|ALAJUELA|HEREDIA|SAN JOSE|CARIARI|GRECIA|LIBERIA|NICOYA|PUNTARENAS|CIUDAD QUESADA|PEREZ ZELEDON|PALMARES)-'
        and b.search_name !~ '-(SAN JOSE|TURRIALBA|PARAISO|LIMON|ALAJUELA|HEREDIA|LIBERIA|NICOYA|PUNTARENAS|CIUDAD QUESADA|PEREZ ZELEDON|PALMARES)($|[^A-Z])' then 'local'
       when b.search_name ~ '(SAN JOSE|TURRIALBA|PARAISO|OROSI|CERVANTES|PACAYAS|JUAN VINAS|TRES RIOS|LA UNION|IRAZU|TEJAR|EL GUARCO|COT|LIMON)' then 'interurbana'
-      when b.search_name ~ '(TARAS|SAN NICOLAS|AGUACALIENTE|GUADALUPE|OCCIDENTAL|ORIENTAL|LOURDES|DULCE NOMBRE|TIERRA BLANCA|BLANQUILLO|EL ALTO|MATA DE MORA|PIEDRA AZUL|PE�A BLANCA|LOAIZA|EL HUMO|LA PUEBLA|PARQUE INDUSTRIAL|RIO MACHO|SANTIAGO)' then 'local'
+      when b.search_name ~ '(TARAS|SAN NICOLAS|AGUACALIENTE|GUADALUPE|OCCIDENTAL|ORIENTAL|LOURDES|DULCE NOMBRE|TIERRA BLANCA|BLANQUILLO|EL ALTO|MATA DE MORA|PIEDRA AZUL|PE.?A BLANCA|LOAIZA|EL HUMO|LA PUEBLA|PARQUE INDUSTRIAL|RIO MACHO|SANTIAGO)' then 'local'
       else 'desconocida'
     end as categoria_operativa,
     case
@@ -181,11 +181,11 @@ inferred as (
       when b.search_name ~ '(^|[^A-Z])(TRONCAL|CORREDOR|TERMINAL)([^A-Z]|$)' then 0.800
       when b.search_name ~ '^[A-Z ]+-(LIMON|SAN JOSE|ALAJUELA)($|[^A-Z])'
        and b.search_name !~ '^(LIMON|SAN JOSE|ALAJUELA)-' then 0.900
-      when b.search_name ~ '(BARRIO|B[�.]|URBANIZACION|RESIDENCIAL)' then 0.850
+      when b.search_name ~ '(BARRIO|B[.]|URBANIZACION|RESIDENCIAL)' then 0.850
       when b.search_name ~ '^(CARTAGO|ALAJUELA|HEREDIA|SAN JOSE|CARIARI|GRECIA|LIBERIA|NICOYA|PUNTARENAS|CIUDAD QUESADA|PEREZ ZELEDON|PALMARES)-'
        and b.search_name !~ '-(SAN JOSE|TURRIALBA|PARAISO|LIMON|ALAJUELA|HEREDIA|LIBERIA|NICOYA|PUNTARENAS|CIUDAD QUESADA|PEREZ ZELEDON|PALMARES)($|[^A-Z])' then 0.800
       when b.search_name ~ '(SAN JOSE|TURRIALBA|PARAISO|OROSI|CERVANTES|PACAYAS|JUAN VINAS|TRES RIOS|LA UNION|IRAZU|TEJAR|EL GUARCO|COT|LIMON)' then 0.850
-      when b.search_name ~ '(TARAS|SAN NICOLAS|AGUACALIENTE|GUADALUPE|OCCIDENTAL|ORIENTAL|LOURDES|DULCE NOMBRE|TIERRA BLANCA|BLANQUILLO|EL ALTO|MATA DE MORA|PIEDRA AZUL|PE�A BLANCA|LOAIZA|EL HUMO|LA PUEBLA|PARQUE INDUSTRIAL|RIO MACHO|SANTIAGO)' then 0.650
+      when b.search_name ~ '(TARAS|SAN NICOLAS|AGUACALIENTE|GUADALUPE|OCCIDENTAL|ORIENTAL|LOURDES|DULCE NOMBRE|TIERRA BLANCA|BLANQUILLO|EL ALTO|MATA DE MORA|PIEDRA AZUL|PE.?A BLANCA|LOAIZA|EL HUMO|LA PUEBLA|PARQUE INDUSTRIAL|RIO MACHO|SANTIAGO)' then 0.650
       else 0.000
     end as clasificacion_confianza,
     b.search_name

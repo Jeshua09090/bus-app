@@ -84,7 +84,7 @@ export default function DriverHomeScreen() {
     setLocationError(null);
     setIsTransmitting(true);
     setIsSimulating(true);
-    Alert.alert('Simulación Iniciada', 'Transmitiendo ruta de Cartago a Taras...');
+    Alert.alert('Simulación iniciada', 'Transmitiendo ruta de Cartago a Taras...');
 
     const routeId = 'ruta_1';
     const driverId = session?.user?.id || 'simulated_driver_taras';
@@ -97,16 +97,16 @@ export default function DriverHomeScreen() {
 
     currentStepRef.current = 0;
 
-    // Send a point every 1.5 seconds to simulate movement
+    // Send a point every 1.5 seconds to simulate movement.
     simulationIntervalRef.current = setInterval(() => {
       if (currentStepRef.current >= DETAILED_ROUTE.length) {
-        currentStepRef.current = 0; // Loop the simulation
+        currentStepRef.current = 0;
       }
 
       const point = DETAILED_ROUTE[currentStepRef.current];
       const [lng, lat] = point;
 
-      console.log(`[Simulación] 📡 GPS Update: Lat ${lat}, Lng ${lng}`);
+      console.log(`[Simulación] GPS update: Lat ${lat}, Lng ${lng}`);
 
       if (channelRef.current) {
         channelRef.current.send({
@@ -114,14 +114,14 @@ export default function DriverHomeScreen() {
           event: 'location_update',
           payload: {
             driver_id: driverId,
-            lat: lat,
-            lng: lng,
+            lat,
+            lng,
             heading: 0,
             speed: 40,
             timestamp: Date.now(),
-            status: 'en_ruta_simulada'
+            status: 'en_ruta_simulada',
           },
-        }).catch(err => console.error("Error broadcasting simulation:", err));
+        }).catch(err => console.error('Error broadcasting simulation:', err));
       }
 
       currentStepRef.current += 1;
@@ -132,7 +132,7 @@ export default function DriverHomeScreen() {
     if (isTransmitting) {
       await stopTracking();
       setIsTransmitting(false);
-      Alert.alert('Transmisión Detenida', 'La transmisión de tu ubicación ha sido detenida.');
+      Alert.alert('Transmisión detenida', 'La transmisión de tu ubicación se detuvo.');
     } else {
       setLocationError(null);
 
@@ -140,11 +140,11 @@ export default function DriverHomeScreen() {
       if (notifStatus !== 'granted') {
         Alert.alert(
           'Permiso de Notificaciones',
-          'Las notificaciones están bloqueadas. Esto puede impedir que la app siga transmitiendo cuando la minimizas.'
+          'Las notificaciones están bloqueadas. Esto puede impedir que la app siga transmitiendo cuando la minimizas.',
         );
       }
 
-      let { status: fgStatus } = await Location.requestForegroundPermissionsAsync();
+      const { status: fgStatus } = await Location.requestForegroundPermissionsAsync();
       if (fgStatus !== 'granted') {
         setLocationError('Permiso de ubicación denegado. No se puede transmitir.');
         Alert.alert('Error', 'Se requiere acceso a la ubicación para transmitir.');
@@ -161,12 +161,12 @@ export default function DriverHomeScreen() {
       if (!isWebRuntime && bgStatus !== 'granted') {
         Alert.alert(
           'Advertencia',
-          'La app no tiene permisos para transmitir en segundo plano. Si minimizas la app, el GPS se detendrá.'
+          'La app no tiene permisos para transmitir en segundo plano. Si minimizas la app, el GPS se detendrá.',
         );
       }
 
       setIsTransmitting(true);
-      Alert.alert('Transmisión Iniciada', 'Conectando con el satélite y transmitiendo...');
+      Alert.alert('Transmisión iniciada', 'Conectando con el GPS y transmitiendo...');
 
       const routeId = 'ruta_1';
       const driverId = session?.user?.id || 'anonymous_driver';
@@ -178,7 +178,7 @@ export default function DriverHomeScreen() {
 
       channel.subscribe((status) => {
         if (status === 'SUBSCRIBED') {
-          console.log(`✅ Driver connected to broadcast channel: route_tracking:${routeId}`);
+          console.log(`Driver connected to broadcast channel: route_tracking:${routeId}`);
         }
       });
       channelRef.current = channel;
@@ -192,7 +192,7 @@ export default function DriverHomeScreen() {
           },
           (location) => {
             const { latitude, longitude, heading, speed } = location.coords;
-            console.log(`📡 GPS Update: Lat ${latitude}, Lng ${longitude}`);
+            console.log(`GPS update: Lat ${latitude}, Lng ${longitude}`);
 
             if (channelRef.current) {
               channelRef.current.send({
@@ -205,11 +205,11 @@ export default function DriverHomeScreen() {
                   heading: heading || 0,
                   speed: speed || 0,
                   timestamp: Date.now(),
-                  status: 'en_ruta'
+                  status: 'en_ruta',
                 },
-              }).catch(err => console.error("Error broadcasting location:", err));
+              }).catch(err => console.error('Error broadcasting location:', err));
             }
-          }
+          },
         );
         setLocationSubscription(sub);
 
@@ -222,10 +222,10 @@ export default function DriverHomeScreen() {
             distanceInterval: 50,
             showsBackgroundLocationIndicator: true,
             foregroundService: {
-              notificationTitle: "CartagoBuses",
-              notificationBody: "Transmitiendo tu ubicación GPS a los pasajeros",
-              notificationColor: "#10b981",
-            }
+              notificationTitle: 'Buses CR',
+              notificationBody: 'Transmitiendo tu ubicación GPS a los pasajeros',
+              notificationColor: '#10b981',
+            },
           });
         }
       } catch (error) {
@@ -272,10 +272,10 @@ export default function DriverHomeScreen() {
           </View>
         ) : null}
 
-        <View style={[styles.statusContainer, { backgroundColor: softPanelColor }] }>
+        <View style={[styles.statusContainer, { backgroundColor: softPanelColor }]}>
           <View style={[
             styles.statusIndicator,
-            { backgroundColor: isTransmitting ? '#4CAF50' : '#FF5252' }
+            { backgroundColor: isTransmitting ? '#4CAF50' : '#FF5252' },
           ]} />
           <ThemedText style={styles.statusText}>
             {isTransmitting ? 'Activo' : 'Inactivo'}
@@ -286,7 +286,7 @@ export default function DriverHomeScreen() {
           <TouchableOpacity
             style={[
               styles.button,
-              { backgroundColor: isTransmitting ? '#FF5252' : '#4CAF50' }
+              { backgroundColor: isTransmitting ? '#FF5252' : '#4CAF50' },
             ]}
             onPress={toggleTransmission}
             activeOpacity={0.8}
@@ -303,7 +303,7 @@ export default function DriverHomeScreen() {
             onPress={startSimulation}
             activeOpacity={0.8}
           >
-            <Ionicons name="play-circle-outline" size={20} color="white" style={{marginRight: 8}} />
+            <Ionicons name="play-circle-outline" size={20} color="white" style={styles.buttonIcon} />
             <Text style={styles.buttonText}>Simular Ruta a Taras</Text>
           </TouchableOpacity>
         )}
@@ -311,14 +311,14 @@ export default function DriverHomeScreen() {
         {isSimulating && (
           <TouchableOpacity
             style={[styles.button, { backgroundColor: '#FF5252', marginTop: 10 }]}
-            onPress={startSimulation} // using startSimulation here actually stops it because of the check
+            onPress={startSimulation}
             activeOpacity={0.8}
           >
-            <Text style={styles.buttonText}>Detener Simulación</Text>
+            <Text style={styles.buttonText}>Detener simulación</Text>
           </TouchableOpacity>
         )}
 
-        <View style={[styles.infoContainer, { backgroundColor: softPanelColor, marginTop: 20 }] }>
+        <View style={[styles.infoContainer, { backgroundColor: softPanelColor, marginTop: 20 }]}>
           <ThemedText style={styles.infoText}>
             Usa el modo simulación para ver cómo se mueve el bus en el mapa de pasajeros sin tener que desplazarte físicamente.
           </ThemedText>
@@ -404,6 +404,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+  },
+  buttonIcon: {
+    marginRight: 8,
   },
   buttonText: {
     color: 'white',

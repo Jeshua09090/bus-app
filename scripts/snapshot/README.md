@@ -1,6 +1,7 @@
-# CartagoBuses Snapshot Generator
+# Buses CR Snapshot Generator
 
-Local-only Wave 1 generator for a Cartago-scoped Minotor snapshot.
+Local-only generator for the current Costa Rica transit snapshot work, starting
+with the Cartago validation corridors.
 
 ## Commands
 

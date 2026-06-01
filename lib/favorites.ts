@@ -1,4 +1,4 @@
-export const FAVORITES_STORAGE_KEY = '@cartagobuses/favorites:v1';
+export const FAVORITES_STORAGE_KEY = '@busescr/favorites:v1';
 
 export const FAVORITE_ICON_OPTIONS = [
   'home-outline',

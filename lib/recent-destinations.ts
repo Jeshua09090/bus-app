@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const RECENT_DESTINATIONS_STORAGE_KEY = '@cartagobuses/recent-destinations:v1';
+export const RECENT_DESTINATIONS_STORAGE_KEY = '@busescr/recent-destinations:v1';
 const MAX_RECENT_DESTINATIONS = 5;
 
 export type RecentDestinationEntry = {
