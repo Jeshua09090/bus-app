@@ -9,8 +9,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+type HasStartedLocationUpdatesAsync = (taskName: string) => Promise<boolean>;
+type StopLocationUpdatesAsync = (taskName: string) => Promise<void>;
+type RequestBackgroundPermissionsAsync = () => Promise<Location.LocationPermissionResponse>;
+type StartLocationUpdatesAsync = (
+  taskName: string,
+  options: Location.LocationTaskOptions,
+) => Promise<void>;
 
 export default function DriverHomeScreen() {
   const [isTransmitting, setIsTransmitting] = useState(false);
@@ -19,31 +27,38 @@ export default function DriverHomeScreen() {
   const [locationSubscription, setLocationSubscription] = useState<Location.LocationSubscription | null>(null);
   const { clearRole, session } = useAuth();
   const softPanelColor = useThemeColor({ light: '#f1f5f9', dark: '#1e293b' }, 'background');
-  
+
   const channelRef = useRef<RealtimeChannel | null>(null);
   const simulationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const currentStepRef = useRef(0);
+  const isWebRuntime = process.env.EXPO_OS === 'web';
 
-  useEffect(() => {
-    return () => {
-      stopTracking();
-    };
-  }, []);
-
-  const stopTracking = async () => {
+  const stopTracking = useCallback(async () => {
     if (locationSubscription) {
       locationSubscription.remove();
       setLocationSubscription(null);
     }
-    
+
     if (simulationIntervalRef.current) {
       clearInterval(simulationIntervalRef.current);
       simulationIntervalRef.current = null;
     }
-    
-    const hasStarted = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME);
-    if (hasStarted) {
-      await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME);
+
+    if (!isWebRuntime) {
+      const hasStartedLocationUpdatesAsync = (Location as Record<string, unknown>)
+        .hasStartedLocationUpdatesAsync as HasStartedLocationUpdatesAsync | undefined;
+      const stopLocationUpdatesAsync = (Location as Record<string, unknown>)
+        .stopLocationUpdatesAsync as StopLocationUpdatesAsync | undefined;
+
+      if (
+        typeof hasStartedLocationUpdatesAsync === 'function' &&
+        typeof stopLocationUpdatesAsync === 'function'
+      ) {
+        const hasStarted = await hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME);
+        if (hasStarted) {
+          await stopLocationUpdatesAsync(LOCATION_TASK_NAME);
+        }
+      }
     }
 
     if (channelRef.current) {
@@ -51,7 +66,13 @@ export default function DriverHomeScreen() {
       channelRef.current = null;
     }
     setIsSimulating(false);
-  };
+  }, [isWebRuntime, locationSubscription]);
+
+  useEffect(() => {
+    return () => {
+      void stopTracking();
+    };
+  }, [stopTracking]);
 
   const startSimulation = async () => {
     if (isTransmitting) {
@@ -65,12 +86,12 @@ export default function DriverHomeScreen() {
     setIsSimulating(true);
     Alert.alert('Simulación Iniciada', 'Transmitiendo ruta de Cartago a Taras...');
 
-    const routeId = 'ruta_1'; 
+    const routeId = 'ruta_1';
     const driverId = session?.user?.id || 'simulated_driver_taras';
     const channel = supabase.channel(`route_tracking:${routeId}`, {
       config: { broadcast: { self: true } },
     });
-    
+
     channel.subscribe();
     channelRef.current = channel;
 
@@ -114,7 +135,7 @@ export default function DriverHomeScreen() {
       Alert.alert('Transmisión Detenida', 'La transmisión de tu ubicación ha sido detenida.');
     } else {
       setLocationError(null);
-      
+
       const { status: notifStatus } = await Notifications.requestPermissionsAsync();
       if (notifStatus !== 'granted') {
         Alert.alert(
@@ -122,7 +143,7 @@ export default function DriverHomeScreen() {
           'Las notificaciones están bloqueadas. Esto puede impedir que la app siga transmitiendo cuando la minimizas.'
         );
       }
-      
+
       let { status: fgStatus } = await Location.requestForegroundPermissionsAsync();
       if (fgStatus !== 'granted') {
         setLocationError('Permiso de ubicación denegado. No se puede transmitir.');
@@ -130,8 +151,14 @@ export default function DriverHomeScreen() {
         return;
       }
 
-      let { status: bgStatus } = await Location.requestBackgroundPermissionsAsync();
-      if (bgStatus !== 'granted') {
+      let bgStatus: Location.PermissionStatus | null = null;
+      const requestBackgroundPermissionsAsync = (Location as Record<string, unknown>)
+        .requestBackgroundPermissionsAsync as RequestBackgroundPermissionsAsync | undefined;
+      if (!isWebRuntime && typeof requestBackgroundPermissionsAsync === 'function') {
+        const backgroundPermission = await requestBackgroundPermissionsAsync();
+        bgStatus = backgroundPermission.status;
+      }
+      if (!isWebRuntime && bgStatus !== 'granted') {
         Alert.alert(
           'Advertencia',
           'La app no tiene permisos para transmitir en segundo plano. Si minimizas la app, el GPS se detendrá.'
@@ -141,14 +168,14 @@ export default function DriverHomeScreen() {
       setIsTransmitting(true);
       Alert.alert('Transmisión Iniciada', 'Conectando con el satélite y transmitiendo...');
 
-      const routeId = 'ruta_1'; 
+      const routeId = 'ruta_1';
       const driverId = session?.user?.id || 'anonymous_driver';
       const channel = supabase.channel(`route_tracking:${routeId}`, {
         config: {
           broadcast: { self: true },
         },
       });
-      
+
       channel.subscribe((status) => {
         if (status === 'SUBSCRIBED') {
           console.log(`✅ Driver connected to broadcast channel: route_tracking:${routeId}`);
@@ -160,13 +187,13 @@ export default function DriverHomeScreen() {
         const sub = await Location.watchPositionAsync(
           {
             accuracy: Location.Accuracy.High,
-            timeInterval: 5000, 
-            distanceInterval: 10, 
+            timeInterval: 5000,
+            distanceInterval: 10,
           },
           (location) => {
             const { latitude, longitude, heading, speed } = location.coords;
             console.log(`📡 GPS Update: Lat ${latitude}, Lng ${longitude}`);
-            
+
             if (channelRef.current) {
               channelRef.current.send({
                 type: 'broadcast',
@@ -186,8 +213,10 @@ export default function DriverHomeScreen() {
         );
         setLocationSubscription(sub);
 
-        if (bgStatus === 'granted') {
-          await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
+        const startLocationUpdatesAsync = (Location as Record<string, unknown>)
+          .startLocationUpdatesAsync as StartLocationUpdatesAsync | undefined;
+        if (!isWebRuntime && bgStatus === 'granted' && typeof startLocationUpdatesAsync === 'function') {
+          await startLocationUpdatesAsync(LOCATION_TASK_NAME, {
             accuracy: Location.Accuracy.Balanced,
             timeInterval: 10000,
             distanceInterval: 50,
@@ -231,14 +260,21 @@ export default function DriverHomeScreen() {
 
       <View style={styles.content}>
         <ThemedText style={styles.subtitle}>
-          {isTransmitting 
-            ? 'Transmitiendo ubicación a los pasajeros' 
+          {isTransmitting
+            ? 'Transmitiendo ubicación a los pasajeros'
             : 'Inicia la transmisión para compartir ubicación'}
         </ThemedText>
-        
+
+        {locationError ? (
+          <View style={[styles.errorContainer, { backgroundColor: softPanelColor }]}>
+            <Ionicons name="warning-outline" size={18} color="#FFB347" />
+            <ThemedText style={styles.errorText}>{locationError}</ThemedText>
+          </View>
+        ) : null}
+
         <View style={[styles.statusContainer, { backgroundColor: softPanelColor }] }>
           <View style={[
-            styles.statusIndicator, 
+            styles.statusIndicator,
             { backgroundColor: isTransmitting ? '#4CAF50' : '#FF5252' }
           ]} />
           <ThemedText style={styles.statusText}>
@@ -384,5 +420,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
     opacity: 0.7,
+  },
+  errorContainer: {
+    width: '100%',
+    maxWidth: 320,
+    marginBottom: 20,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  errorText: {
+    flex: 1,
+    fontSize: 13,
+    lineHeight: 18,
   },
 });

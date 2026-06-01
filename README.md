@@ -74,6 +74,9 @@ mobile-friendly runtime:
 This matters because public transit routing must be fast enough for a phone and
 honest enough for real passengers.
 
+See [docs/raptor-runtime.md](./docs/raptor-runtime.md) for the current public
+runtime architecture and validation notes.
+
 ## Getting Started
 
 Install dependencies:

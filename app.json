@@ -31,7 +31,7 @@
       ]
     },
     "web": {
-      "output": "static",
+      "output": "server",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
@@ -48,16 +48,18 @@
           }
         }
       ],
-      [
-        "@rnmapbox/maps",
-        {
-          "RNMapboxMapsDownloadToken": "sk.eyJ1IjoiamVzaHVhbXoiLCJhIjoiY21semxoNXBzMDhmdDNkb2swam1ibnVlbSJ9.N-sj403i2HUZw2OLBB7d4Q"
-        }
-      ]
+      "@rnmapbox/maps",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "bd0ec63f-ce5e-4d28-a2d2-1110cafd6086"
+      }
     }
   }
 }
