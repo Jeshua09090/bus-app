@@ -10,15 +10,15 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "dotenv": "17.3.1",
-    "minotor": "11.2.2",
-    "pg": "8.16.3",
-    "zod": "4.1.13"
+    "dotenv": "17.4.2",
+    "minotor": "11.2.3",
+    "pg": "8.21.0",
+    "zod": "4.4.3"
   },
   "devDependencies": {
-    "@types/node": "24.10.1",
-    "@types/pg": "8.16.0",
-    "tsx": "4.20.6",
-    "typescript": "5.9.3"
+    "@types/node": "25.9.1",
+    "@types/pg": "8.20.0",
+    "tsx": "4.22.4",
+    "typescript": "6.0.3"
   }
 }
