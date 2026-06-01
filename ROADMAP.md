@@ -33,4 +33,3 @@ honest before widening coverage.
 - No frequent database writes for live bus positions.
 - No desktop-first redesign.
 - No default-on planner runtime until enough real-world validation passes.
-

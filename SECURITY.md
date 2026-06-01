@@ -37,4 +37,3 @@ Out of scope:
 - issues requiring access to accounts or systems you do not control
 - social engineering
 - denial-of-service testing against live services without permission
-
