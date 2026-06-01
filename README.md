@@ -1,50 +1,143 @@
-# Welcome to your Expo app 👋
+# CartagoBuses
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+CartagoBuses is an open-source mobile transit project for Costa Rica, built with
+Expo, React Native, Mapbox, and Supabase.
 
-## Get started
+The project started in Cartago because that is where the first route data,
+planner cases, and live-bus experiments are deepest. The longer-term goal is a
+Costa Rica-wide public transit app that handles the local realities that generic
+map apps often miss: informal landmarks, overlapping route variants, ambiguous
+stops, transfer points, and limited official digital data.
 
-1. Install dependencies
+## What It Is
 
-   ```bash
-   npm install
-   ```
+CartagoBuses combines three pieces of work:
 
-2. Start the app
+- a passenger-first mobile app with a dark, map-centered interface
+- driver/location tooling for live fleet visibility through Supabase Realtime
+- route-planning experiments for Costa Rican bus trips, including transfer
+  handling and ongoing RAPTOR runtime work
 
-   ```bash
-   npx expo start
-   ```
+The project is currently in an algorithm-first stage. Screenshots and polished
+marketing assets are intentionally secondary while the planner is being tuned
+against real local corridors and validation cases.
 
-In the output, you'll find options to open the app in a
+## Why It Matters
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Public bus navigation in Costa Rica is still difficult to model digitally.
+Useful trip planning requires more than drawing a route on a map:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- stops may be informal or inconsistently named
+- route variants can overlap for several kilometers and then diverge
+- the "nearest" stop is not always the useful stop
+- transfer points may be obvious locally but invisible in raw data
+- live bus visibility is sparse outside a few polished commercial experiences
 
-## Get a fresh project
+CartagoBuses is built from that reality outward. The goal is practical transit
+guidance for local riders, not a generic demo map.
 
-When you're ready, run:
+## Current Capabilities
+
+- Expo Router mobile app with passenger and driver flows
+- Mapbox-based full-screen passenger map
+- Supabase Realtime Broadcast for live bus position updates
+- driver simulation tooling for local fleet testing
+- route metadata and stop definitions for early Cartago corridors
+- trip-search and journey presentation experiments
+- ongoing work on an in-memory RAPTOR planner fed by versioned transit snapshots
+- local validation scripts for comparing planner behavior across known cases
+
+## Technical Stack
+
+| Layer | Technology |
+| --- | --- |
+| Mobile app | Expo SDK 54, React Native 0.81, React 19 |
+| Language | TypeScript |
+| Navigation | Expo Router v6 |
+| Maps | `@rnmapbox/maps` |
+| Backend | Supabase JS v2 |
+| Realtime | Supabase Realtime Broadcast |
+| Location | `expo-location`, `expo-task-manager` |
+| UI motion | Reanimated, Gesture Handler, Gorhom Bottom Sheet |
+
+## Algorithm Work
+
+The main engineering focus is replacing slow database-heavy trip planning with a
+mobile-friendly runtime:
+
+- load a versioned snapshot of the transit network
+- run route search in memory on device
+- keep legacy planning as a fallback while the runtime matures
+- validate against hand-curated local cases before widening coverage
+- prefer real corridor checks over invented fixtures
+
+This matters because public transit routing must be fast enough for a phone and
+honest enough for real passengers.
+
+## Getting Started
+
+Install dependencies:
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Start the Expo dev server:
 
-## Learn more
+```bash
+npm run start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Useful scripts:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npm run web
+npm run lint
+npm run android
+```
 
-## Join the community
+Some features require project-specific environment variables and backend data:
 
-Join our community of developers creating universal apps.
+- `EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN`
+- `EXPO_PUBLIC_SUPABASE_URL`
+- `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+- `EXPO_PUBLIC_GOOGLE_PLACES_KEY`
+- `RNMAPBOX_MAPS_DOWNLOAD_TOKEN`
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+A bare clone can run the app shell, but planner and live-fleet behavior depends
+on configured Supabase data and local validation fixtures.
+
+## Repository Layout
+
+- `app/` - Expo Router screens and flows
+- `components/` - shared mobile UI building blocks
+- `context/` - app-wide state such as role/session context
+- `hooks/` - reusable React Native hooks
+- `lib/` - route metadata, Supabase access, location helpers, planner utilities
+- `scripts/` - local simulation and development tooling
+- `assets/` - app icons and static assets
+
+## Project Status
+
+This is an active early-stage open-source project. It is not a production transit
+authority feed, a complete national dataset, or a polished app-store release.
+
+Current priority:
+
+- planner correctness and speed
+- route and stop data quality
+- reliable live-bus broadcast flows
+- mobile-first passenger UX
+- public documentation that makes the work easier to review and join
+
+See [ROADMAP.md](./ROADMAP.md) for the current direction.
+
+## Contributing
+
+Contributions are welcome, especially in route validation, local transit data,
+planner test cases, mobile UX polish, and documentation. See
+[CONTRIBUTING.md](./CONTRIBUTING.md).
+
+## License
+
+MIT. See [LICENSE](./LICENSE).
